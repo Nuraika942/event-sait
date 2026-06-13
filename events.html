@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-list-check me-2"></i> Мои мероприятия</h2>
+
+<!-- Форма поиска и фильтрации -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Поиск по названию / описанию" value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">Все категории</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="sort" class="form-select">
+                    <option value="event_date" {% if sort == 'event_date' %}selected{% endif %}>По дате</option>
+                    <option value="title" {% if sort == 'title' %}selected{% endif %}>По названию</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Применить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if events %}
+<div class="row">
+    {% for ev in events %}
+    <div class="col-lg-6 col-md-6 mb-4">
+        <div class="card h-100 event-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="card-title"><i class="fas fa-calendar-alt text-primary me-2"></i>{{ ev.title }}</h5>
+                    <span class="badge-category">{{ ev.category }}</span>
+                </div>
+                <p class="card-text text-muted small mt-2">
+                    <i class="fas fa-calendar-day"></i> {{ ev.event_date }} &nbsp;|&nbsp;
+                    <i class="fas fa-clock"></i> {{ ev.start_time }} - {{ ev.end_time }} <br>
+                    <i class="fas fa-location-dot"></i> {{ ev.location }} <br>
+                    <i class="fas fa-user-tie"></i> {{ ev.organizer }}
+                </p>
+                <p class="card-text">{{ ev.description[:100] }}{% if ev.description|length > 100 %}...{% endif %}</p>
+            </div>
+            <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
+                <a href="{{ url_for('event_detail', id=ev.id) }}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                <div>
+                    <a href="{{ url_for('event_edit', id=ev.id) }}" class="btn btn-sm btn-warning me-2"><i class="fas fa-edit"></i></a>
+                    <form method="POST" action="{{ url_for('event_delete', id=ev.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить мероприятие?')"><i class="fas fa-trash"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-secondary text-center">
+    <i class="fas fa-folder-open fa-2x"></i>
+    <p>Мероприятий не найдено. <a href="{{ url_for('event_create') }}">Создайте первое мероприятие</a></p>
+</div>
+{% endif %}
+{% endblock %}
